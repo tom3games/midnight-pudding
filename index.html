@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>深夜のプリン作戦 / MIDNIGHT PUDDING</title>
+<meta name="description" content="家族が起きる前に、冷蔵庫のプリンを取ってこい。いびきが大きい間だけ動ける、押しっぱなし1ボタンの深夜スニークゲーム。">
+<meta name="theme-color" content="#0b1024">
+<meta property="og:type" content="website">
+<meta property="og:title" content="深夜のプリン作戦">
+<meta property="og:description" content="家族が起きる前に、冷蔵庫のプリンを取ってこい。いびきが大きい間だけ動ける1ボタンのバカゲー。">
+<meta property="og:image" content="https://tom3games.github.io/midnight-pudding/og.png?v=1">
+<meta property="og:url" content="https://tom3games.github.io/midnight-pudding/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 54h36l-6-36H20z' fill='%23ffd23f'/%3E%3Cpath d='M20 18h24l1 7c-8 3-18 3-26 0z' fill='%238a4b1c'/%3E%3Cellipse cx='32' cy='55' rx='24' ry='5' fill='%23cfe3ff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+<style>
+[hidden]{display:none!important}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --night:#0b1024;--navy:#141a3a;--navy2:#222a58;--moon:#dbe8ff;--ink:#16122a;--paper:#fff8ec;
+  --pud:#ffd23f;--pud-dk:#b98a10;--cara:#8a4b1c;--pink:#ff8fb1;--pink-dk:#b4446c;
+  --go:#5be38a;--go-dk:#1f8a48;--ng:#ff4a5a;--ng-dk:#9a1424;
+  --disp:'Dela Gothic One','Hiragino Sans','Yu Gothic',sans-serif;
+}
+html{background:var(--night);touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;height:100%;overflow:hidden}
+body{height:100%;overflow:hidden;color:var(--paper);font-family:'Zen Maru Gothic','Hiragino Maru Gothic ProN','Hiragino Sans','Yu Gothic',sans-serif;font-weight:700;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;word-break:auto-phrase;line-break:strict}
+button,canvas{touch-action:manipulation}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:none}
+.view{position:fixed;inset:0;height:100svh;overflow:hidden;z-index:2;display:flex;flex-direction:column;align-items:center}
+button{font-family:inherit;font-weight:900;color:inherit;border:0;background:none;cursor:pointer}
+.btn{font-family:var(--disp);font-weight:400;font-size:clamp(17px,2.6vh,24px);letter-spacing:.04em;padding:.62em 1.4em;border-radius:16px;color:var(--ink);
+  background:var(--pud);box-shadow:0 5px 0 var(--pud-dk),0 9px 18px rgba(0,0,0,.4);border:3px solid var(--ink);transition:transform .08s;white-space:nowrap}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--pud-dk)}
+.btn.sub{background:var(--moon);box-shadow:0 5px 0 #7b8fb8,0 9px 18px rgba(0,0,0,.4)}
+.btn.pink{background:var(--pink);box-shadow:0 5px 0 var(--pink-dk),0 9px 18px rgba(0,0,0,.4)}
+.ib{width:44px;height:44px;border-radius:12px;background:rgba(11,16,36,.72);border:2px solid rgba(219,232,255,.5);display:grid;place-items:center;font-family:var(--disp);font-size:14px;color:var(--moon)}
+.ib svg{width:24px;height:24px}
+.tools{position:absolute;top:max(10px,env(safe-area-inset-top));right:10px;display:flex;gap:8px;z-index:5}
+
+/* タイトル */
+#vTitle{justify-content:center;gap:clamp(10px,2.4vh,26px);background:radial-gradient(ellipse at 50% 40%,rgba(11,16,36,0) 30%,rgba(11,16,36,.65) 100%)}
+.logo{text-align:center;font-family:var(--disp);line-height:1.02;filter:drop-shadow(0 6px 0 var(--ink))}
+.logo .l1{display:block;font-size:min(5.2vh,9vw,46px);color:var(--moon);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;letter-spacing:.1em}
+.logo .l2{display:block;font-size:min(10vh,16vw,96px);color:var(--pud);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;transform:rotate(-3deg)}
+.logo .l2 svg{height:.8em;width:auto;vertical-align:-.06em;margin-right:.06em}
+.tag{font-size:clamp(14px,2.2vh,19px);text-align:center;max-width:min(92vw,520px);padding:.5em 1em;background:rgba(11,16,36,.75);border:2px solid rgba(219,232,255,.35);border-radius:14px}
+.tbtns{display:flex;flex-direction:column;gap:14px;align-items:center}
+.credit{position:absolute;bottom:max(8px,env(safe-area-inset-bottom));font-size:11px;opacity:.6}
+.moonbadge{position:absolute;left:12px;top:max(12px,env(safe-area-inset-top));font-family:var(--disp);font-size:13px;color:var(--moon);opacity:.85;display:flex;gap:6px;align-items:center}
+.moonbadge svg{width:22px;height:22px}
+
+/* 遊び方 */
+#vHow{justify-content:center;background:rgba(11,16,36,.82)}
+.card{background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:20px;box-shadow:0 8px 0 rgba(0,0,0,.45);width:min(94vw,620px);max-height:calc(100svh - 24px);padding:clamp(12px,2.4vh,22px);display:flex;flex-direction:column;gap:clamp(6px,1.4vh,12px)}
+.card h2{font-family:var(--disp);font-weight:400;font-size:clamp(20px,3.4vh,30px);text-align:center}
+.rules{display:grid;gap:clamp(5px,1.1vh,10px);list-style:none;min-height:0;overflow:hidden}
+.rules li{display:grid;grid-template-columns:clamp(34px,6vh,50px) 1fr;gap:10px;align-items:center;font-size:clamp(12.5px,1.95vh,16px);line-height:1.4}
+.rules li svg{width:100%;height:auto}
+.rules b{color:var(--pink-dk)}
+.hbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+@media (orientation:landscape) and (max-height:560px){.rules{grid-template-columns:1fr 1fr;column-gap:16px}.rules li:last-child{grid-column:1/-1}.card{width:min(96vw,860px)}}
+
+/* プレイ */
+#vPlay{z-index:3;touch-action:none}
+#hit{position:absolute;inset:0;z-index:1;touch-action:none}
+.hud{position:absolute;left:0;right:0;top:max(8px,env(safe-area-inset-top));display:flex;justify-content:space-between;align-items:flex-start;padding:0 10px;gap:8px;z-index:4;pointer-events:none}
+.hud .ib,.hud button{pointer-events:auto}
+.chip{background:rgba(11,16,36,.78);border:2px solid rgba(219,232,255,.4);border-radius:12px;padding:4px 10px;display:flex;align-items:center;gap:6px;font-family:var(--disp);font-size:clamp(14px,2.2vh,19px);color:var(--moon);white-space:nowrap}
+.chip svg{width:22px;height:22px;flex:none}
+.chip small{font-family:'Zen Maru Gothic',sans-serif;font-size:11px;opacity:.75}
+.chip.late{border-color:var(--ng);color:#ffb3ba}
+.hl,.hr{display:flex;gap:6px;align-items:flex-start}
+.hl{flex-direction:column}
+#strips{position:absolute;left:50%;transform:translateX(-50%);top:calc(max(8px,env(safe-area-inset-top)) + 52px);display:flex;flex-direction:column;gap:4px;align-items:center;z-index:4;pointer-events:none}
+.strip{display:flex;align-items:center;gap:6px;background:rgba(11,16,36,.8);border:2px solid rgba(219,232,255,.35);border-radius:10px;padding:3px 8px 3px 4px}
+.strip .who{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:var(--ink);font-weight:900;border:2px solid var(--ink)}
+.strip canvas{width:min(46vw,190px);height:22px;display:block;border-radius:5px}
+#sig{font-family:var(--disp);font-size:clamp(22px,4.4vh,40px);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;filter:drop-shadow(0 4px 0 var(--ink));margin-top:2px;white-space:nowrap;transition:transform .1s}
+#sig.go{color:var(--go)} #sig.stop{color:var(--ng)} #sig.frz{color:#fff;animation:shake .2s infinite} #sig.info{color:var(--pud);font-size:clamp(16px,3vh,26px)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+#tags{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.tagx{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:3px}
+.bub{background:#fff;color:var(--ink);border:2.5px solid var(--ink);border-radius:14px;padding:2px 9px;font-size:clamp(12px,1.9vh,16px);font-weight:900;white-space:nowrap;position:relative}
+.bub.loud{font-family:var(--disp);font-weight:400;background:#e6f9ec}
+.bub.quiet{background:#ffe8ea;color:var(--ng-dk)}
+.bub.hmm{background:var(--pud);animation:pop .25s}
+.bub.wake{background:var(--ng);color:#fff;animation:pop .25s}
+.gauge{width:46px;height:7px;background:rgba(11,16,36,.85);border:1.5px solid var(--moon);border-radius:4px;overflow:hidden}
+.gauge i{display:block;height:100%;width:0;background:var(--go)}
+.fx{position:absolute;transform:translate(-50%,-50%);font-family:var(--disp);font-size:clamp(22px,4vh,36px);color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;white-space:nowrap;animation:fxup 1s forwards}
+.fx.big{font-size:clamp(30px,6vh,56px);color:var(--pud)}
+.fx.red{color:var(--ng)}
+@keyframes fxup{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-120%) scale(1)}}
+@keyframes pop{0%{transform:scale(.3)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+#hold{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 18px 8px 10px;border-radius:40px;background:rgba(11,16,36,.8);border:3px solid rgba(219,232,255,.5);font-family:var(--disp);font-size:clamp(14px,2.2vh,18px);color:var(--moon);z-index:4;pointer-events:none;white-space:nowrap}
+#hold svg{width:38px;height:38px}
+#hold.on{background:var(--pud);color:var(--ink);border-color:var(--ink);box-shadow:0 0 24px rgba(255,210,63,.6)}
+#flash{position:absolute;inset:0;background:#fff8d8;opacity:0;pointer-events:none;z-index:3}
+#tut{position:absolute;inset:0;z-index:6;background:rgba(11,16,36,.7);display:flex;align-items:center;justify-content:center;touch-action:none}
+#tut .card{width:min(90vw,440px);align-items:center;text-align:center}
+#tut .tl{display:flex;align-items:center;gap:12px;font-size:clamp(15px,2.5vh,20px);line-height:1.35;text-align:left}
+#tut .tl svg{width:56px;height:56px;flex:none}
+#tut .tl b{color:var(--pink-dk);white-space:nowrap}
+#tut .go{font-family:var(--disp);font-size:clamp(16px,2.6vh,22px);color:var(--pink-dk);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.35}}
+#skipHint{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));right:12px;font-size:12px;opacity:.7;z-index:4}
+
+/* 結果 */
+#vResult{justify-content:center;background:rgba(11,16,36,.55);z-index:4}
+#vResult .card{width:min(94vw,520px);align-items:center;text-align:center;position:relative;gap:clamp(4px,1vh,10px);padding-top:clamp(10px,1.8vh,18px)}
+.rhead{font-family:var(--disp);font-size:clamp(12px,1.8vh,15px);color:#5b5480;letter-spacing:.06em}
+.stamp{font-family:var(--disp);font-size:clamp(34px,7vh,62px);line-height:1;padding:.08em .35em;border:6px solid currentColor;border-radius:14px;transform:rotate(-10deg);opacity:0}
+html[lang=en] .stamp{font-size:clamp(26px,5.2vh,46px)}
+.stamp.ok{color:#d81f3a}.stamp.ng{color:#2b3fae}
+.stamp.on{animation:slam .45s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes slam{0%{opacity:0;transform:rotate(-10deg) scale(3)}100%{opacity:1;transform:rotate(-10deg) scale(1)}}
+.rtitle{font-family:var(--disp);font-size:clamp(20px,4vh,34px);line-height:1.15;opacity:0;transition:opacity .3s}
+.rsub{font-size:clamp(13px,2vh,17px);color:var(--pink-dk);opacity:0;transition:opacity .3s}
+.rtitle.on,.rsub.on{opacity:1}
+.stats{display:flex;gap:8px;justify-content:center;width:100%}
+.st{flex:1;background:#efe6d6;border:2px solid var(--ink);border-radius:12px;padding:4px 2px;min-width:0}
+.st small{display:block;font-size:clamp(10px,1.5vh,12px);color:#5b5480}
+.st b{font-family:var(--disp);font-weight:400;font-size:clamp(18px,3.2vh,28px)}
+.cmts{width:100%;display:grid;gap:5px;text-align:left}
+.cmts h3{font-size:12px;color:#5b5480;text-align:center}
+.cm{display:flex;gap:8px;align-items:center;font-size:clamp(11.5px,1.75vh,14px);line-height:1.3;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:4px 8px}
+.cm .who{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:13px;border:2px solid var(--ink)}
+.rbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.rbtns .btn{font-size:clamp(14px,2.2vh,19px);padding:.55em 1.1em}
+@media (orientation:landscape) and (max-height:560px){
+  #vResult .card{width:min(96vw,820px);display:grid;grid-template-columns:1fr 1.15fr;align-items:center;column-gap:16px}
+  #vResult .card>.cL,#vResult .card>.cR{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+}
+@media (max-height:700px) and (orientation:portrait){.cm:nth-child(n+4){display:none}}
+@media (max-height:420px){.cm:nth-child(n+4){display:none}.stamp{font-size:30px}}
+.cL,.cR{display:contents}
+.toast{position:fixed;left:50%;bottom:22%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:12px;z-index:20;font-size:14px}
+#boot-err{position:fixed;inset:auto 8px 8px 8px;z-index:99;background:#fff;color:#b00;font:12px/1.4 monospace;white-space:pre-wrap;padding:10px;border-radius:8px}
+#loading{position:fixed;inset:0;display:grid;place-items:center;z-index:1;font-family:var(--disp);color:var(--moon);font-size:18px}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="loading">Loading...</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-pud" viewBox="0 0 64 64"><ellipse cx="32" cy="55" rx="26" ry="6" fill="#dbe8ff" stroke="#16122a" stroke-width="3"/><path d="M14 54h36l-6-34H20z" fill="#ffd23f" stroke="#16122a" stroke-width="3" stroke-linejoin="round"/><path d="M20 20h24l1.4 8c-8 4-18 4-26.8 0z" fill="#8a4b1c" stroke="#16122a" stroke-width="3" stroke-linejoin="round"/><path d="M22 34v12" stroke="#fff6c8" stroke-width="4" stroke-linecap="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 32 32"><path d="M20 4a12 12 0 1 0 8 19A11 11 0 0 1 20 4z" fill="#ffe9a8" stroke="#16122a" stroke-width="2"/></symbol>
+    <symbol id="i-on" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="i-off" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M6 9.5V20h12V9.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-feet" viewBox="0 0 48 48"><ellipse cx="17" cy="28" rx="6" ry="9" fill="currentColor"/><ellipse cx="31" cy="20" rx="6" ry="9" fill="currentColor"/><circle cx="13" cy="15" r="2.2" fill="currentColor"/><circle cx="17.5" cy="13.5" r="2.2" fill="currentColor"/><circle cx="22" cy="15" r="2.2" fill="currentColor"/><circle cx="27" cy="7.5" r="2.2" fill="currentColor"/><circle cx="31.5" cy="6" r="2.2" fill="currentColor"/><circle cx="36" cy="7.5" r="2.2" fill="currentColor"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 64 64"><circle cx="32" cy="40" r="20" fill="none" stroke="#ff8fb1" stroke-width="3" stroke-dasharray="5 5"/><path d="M27 44V18a4 4 0 0 1 8 0v16l10 3a5 5 0 0 1 3.4 6L46 56H30l-9-9a4 4 0 0 1 6-5z" fill="#fff8ec" stroke="#16122a" stroke-width="3" stroke-linejoin="round"/></symbol>
+    <symbol id="i-key" viewBox="0 0 64 64"><rect x="4" y="22" width="56" height="22" rx="6" fill="#fff8ec" stroke="#16122a" stroke-width="3"/><rect x="4" y="22" width="56" height="16" rx="6" fill="#dbe8ff" stroke="#16122a" stroke-width="3"/><text x="32" y="35" font-size="10" text-anchor="middle" font-family="sans-serif" font-weight="900" fill="#16122a">SPACE</text></symbol>
+    <symbol id="i-zzz" viewBox="0 0 64 64"><circle cx="24" cy="38" r="18" fill="#7fd0ff" stroke="#16122a" stroke-width="3"/><path d="M14 36c3 2 6 2 8 0M28 36c3 2 6 2 8 0" stroke="#16122a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="25" cy="46" rx="5" ry="4" fill="#16122a"/><path d="M42 8h12l-12 12h12M38 26h8l-8 8h8" stroke="#5be38a" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-board" viewBox="0 0 64 64"><rect x="6" y="34" width="52" height="12" rx="2" fill="#a0703c" stroke="#16122a" stroke-width="3"/><path d="M20 34l6 6 6-6 6 6" stroke="#16122a" stroke-width="2.5" fill="none"/><circle cx="48" cy="20" r="9" fill="#ff8fb1" stroke="#16122a" stroke-width="3"/><circle cx="51" cy="18" r="2" fill="#16122a"/><path d="M57 22l5 2" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/><path d="M8 26l6-8M16 22l2-10" stroke="#ff4a5a" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="i-fridge" viewBox="0 0 64 64"><path d="M30 26l26-14v44l-26-6z" fill="#fff6c8" opacity=".9"/><rect x="10" y="6" width="22" height="52" rx="3" fill="#dbe8ff" stroke="#16122a" stroke-width="3"/><path d="M10 24h22" stroke="#16122a" stroke-width="3"/><path d="M27 12v8M27 30v10" stroke="#16122a" stroke-width="3" stroke-linecap="round"/><use href="#i-pud" x="38" y="30" width="18" height="18"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 64 64"><path d="M4 32c8-12 18-18 28-18s20 6 28 18c-8 12-18 18-28 18S12 44 4 32z" fill="#fff" stroke="#16122a" stroke-width="3"/><circle cx="32" cy="32" r="9" fill="#ff4a5a" stroke="#16122a" stroke-width="3"/><circle cx="32" cy="32" r="3" fill="#16122a"/></symbol>
+  </defs>
+</svg>
+
+<main id="vTitle" class="view" hidden>
+  <div class="moonbadge"><svg><use href="#i-moon"/></svg><span>AM 3:00</span></div>
+  <div class="tools"><button class="ib" id="bLang" aria-label="language">EN</button><button class="ib mute" aria-label="mute"><svg class="icOn"><use href="#i-on"/></svg><svg class="icOff" hidden><use href="#i-off"/></svg></button></div>
+  <h1 class="logo"><span class="l1" data-t="title1"></span><span class="l2"><svg viewBox="0 0 64 64"><use href="#i-pud"/></svg><span data-t="title2"></span></span></h1>
+  <p class="tag" data-t="tag"></p>
+  <div class="tbtns"><button class="btn" id="bStart" data-t="start"></button><button class="btn sub" id="bHow" data-t="how"></button></div>
+  <div class="credit">tom3games</div>
+</main>
+
+<main id="vHow" class="view" hidden>
+  <div class="card">
+    <h2 data-t="howTitle"></h2>
+    <ul class="rules">
+      <li><svg viewBox="0 0 64 64"><use class="icInput" href="#i-hand"/></svg><span data-t="how1"></span></li>
+      <li><svg viewBox="0 0 64 64"><use href="#i-zzz"/></svg><span data-t="how2"></span></li>
+      <li><svg viewBox="0 0 64 64"><use href="#i-board"/></svg><span data-t="how3"></span></li>
+      <li><svg viewBox="0 0 64 64"><use href="#i-fridge"/></svg><span data-t="how4"></span></li>
+      <li><svg viewBox="0 0 64 64"><use href="#i-eye"/></svg><span data-t="how5"></span></li>
+    </ul>
+    <div class="hbtns"><button class="btn sub" id="bHowBack" data-t="back"></button><button class="btn" id="bHowGo" data-t="go"></button></div>
+  </div>
+</main>
+
+<main id="vPlay" class="view" hidden>
+  <div id="hit"></div>
+  <div id="tags"></div>
+  <div id="flash"></div>
+  <div class="hud">
+    <div class="hl"><div class="chip" id="clock"><svg><use href="#i-moon"/></svg><span id="clockT">3:00</span><small data-t="toDawn"></small></div></div>
+    <div class="hr"><div class="chip"><svg viewBox="0 0 64 64"><use href="#i-pud"/></svg><span id="itemN">0</span></div><button class="ib mute" aria-label="mute"><svg class="icOn"><use href="#i-on"/></svg><svg class="icOff" hidden><use href="#i-off"/></svg></button><button class="ib" id="bHome" aria-label="title"><svg><use href="#i-home"/></svg></button></div>
+  </div>
+  <div id="strips"><div id="stripBox"></div><div id="sig"></div></div>
+  <div id="hold"><svg><use href="#i-feet"/></svg><span id="holdT"></span></div>
+  <div id="skipHint" hidden data-t="skip"></div>
+  <div id="tut" hidden>
+    <div class="card">
+      <div class="tl"><svg viewBox="0 0 64 64"><use class="icInput" href="#i-hand"/></svg><span id="tut1"></span></div>
+      <div class="tl"><svg viewBox="0 0 64 64"><use href="#i-zzz"/></svg><span data-t="tut2"></span></div>
+      <div class="go" id="tutGo"></div>
+    </div>
+  </div>
+</main>
+
+<main id="vResult" class="view" hidden>
+  <div class="card">
+    <div class="cL">
+      <div class="rhead" data-t="full"></div>
+      <div class="stamp" id="rStamp"></div>
+      <div class="rtitle" id="rTitle"></div>
+      <div class="rsub" id="rSub"></div>
+      <div class="stats"><div class="st"><small data-t="rItems"></small><b id="rItems">-</b></div><div class="st"><small data-t="rWakes"></small><b id="rWakes">-</b></div><div class="st"><small data-t="rTime"></small><b id="rTime">-</b></div></div>
+    </div>
+    <div class="cR">
+      <div class="cmts" id="rCmts"></div>
+      <div class="rbtns"><button class="btn" id="bAgain" data-t="again"></button><button class="btn pink" id="bSave" data-t="save"></button><button class="btn sub" id="bTitle" data-t="toTitle"></button></div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var opt={passive:false};
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()},opt)});
+  document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},opt);
+  var last=0;document.addEventListener('touchend',function(e){var n=Date.now();if(n-last<300&&!(e.target.closest&&e.target.closest('button,a')))e.preventDefault();last=n},opt);
+  document.addEventListener('dblclick',function(e){e.preventDefault()},opt);
+  window.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},opt);
+  window.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['+','-','=','0',';'].indexOf(e.key)>=0)e.preventDefault()});
+})();
+(function(){
+  var errs=[];
+  window.addEventListener('error',function(e){errs.push((e.message||'error')+' @'+(e.filename||'')+':'+(e.lineno||''))});
+  window.addEventListener('unhandledrejection',function(e){errs.push('reject: '+(e.reason&&e.reason.message||e.reason))});
+  setTimeout(function(){
+    if(window.__mpReady) return;
+    var d=document.createElement('div');d.id='boot-err';
+    d.textContent='起動できませんでした / failed to start\n'+(errs.join('\n')||'(no error captured)')+'\n'+navigator.userAgent;
+    document.body.appendChild(d);
+  },6000);
+})();
+</script>
+<script src="data.js?v=1"></script>
+<script src="snd.js?v=1"></script>
+<script type="module" src="game.js?v=1"></script>
+</body>
+</html>
