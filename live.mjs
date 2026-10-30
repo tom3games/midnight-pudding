@@ -11,7 +11,7 @@ for (const [name, bt, opts] of [['chromium', chromium, {}], ['webkit', webkit, {
   await p.goto(URL0 + '?t=' + Date.now(), { waitUntil: 'networkidle' })
   await p.waitForFunction(() => window.__mpReady, null, { timeout: 15000 })
   // 遊びの通し: タイトル → 開始 → チュートリアル → 押して進む → 見つかる → 結果
-  await p.tap?.('#bStart').catch(() => p.click('#bStart')) ?? p.click('#bStart')
+  await p.waitForSelector('#bStart', { state: 'visible', timeout: 15000 }); if (opts.hasTouch) await p.tap('#bStart'); else await p.click('#bStart')
   await p.evaluate(() => { mp.skipTut(); mp.setHold(true) }); await p.waitForTimeout(1500)
   const moved = await p.evaluate(() => mp.G.s); out.push(`${name}: moved=${moved.toFixed(2)}`)
   await p.evaluate(() => { mp.setHold(false); mp.dbg.caught('mom') }); await p.waitForFunction(() => mp.G.phase === 'result', null, { timeout: 10000 })
