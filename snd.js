@@ -147,6 +147,7 @@ const Snd = {
       case 'stamp': this.tone(90, t, 0.25, 'sine', 0.5, null, 40); this.noise(t, 0.18, 0.3, 1200, 'lowpass'); break
       case 'fanfare': [72, 76, 79, 84].forEach((n, k) => { this.tone(this.mtof(n), t + k * 0.11, 0.5, 'square', 0.05); this.tone(this.mtof(n) / 2, t + k * 0.11, 0.5, 'triangle', 0.08) }); break
       case 'boo': [64, 63, 62, 58].forEach((n, k) => this.tone(this.mtof(n) / 2, t + k * 0.3, 0.32, 'sawtooth', 0.07, null, this.mtof(n) / 2.1)); break
+      case 'snort': this.noise(t, 0.14, 0.35, 300, 'lowpass'); this.tone(70, t, 0.16, 'sawtooth', 0.2, null, 40); break
       case 'full': this.tone(300, t, 0.15, 'square', 0.08); this.tone(240, t + 0.16, 0.2, 'square', 0.08); break
     }
   },

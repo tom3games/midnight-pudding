@@ -3,10 +3,10 @@
 window.MP_DATA = {
   // 家族（寝ている人）。r=聞こえる距離、k=気づきやすさ
   FAMILY: [
-    { id: 'sister', ja: '姉', en: 'Sis', r: 3.7, k: 1.0, loud: [1.9, 3.0], quiet: [0.9, 1.6], snoreJa: 'スピー', snoreEn: 'zzz', col: '#c9a4ff' },
-    { id: 'dad', ja: '父', en: 'Dad', r: 5.0, k: 0.9, loud: [2.2, 3.4], quiet: [1.0, 1.8], snoreJa: 'グォォ', snoreEn: 'SNORK', col: '#7fd0ff' },
-    { id: 'dog', ja: '犬', en: 'Pup', r: 4.6, k: 1.25, loud: [1.8, 2.8], quiet: [0.8, 1.4], snoreJa: 'プスー', snoreEn: 'pfff', col: '#ffc46b' },
-    { id: 'mom', ja: '母', en: 'Mom', r: 4.4, k: 1.0, loud: [2.0, 3.2], quiet: [0.9, 1.7], snoreJa: 'ゴゴゴ', snoreEn: 'GRRR', col: '#ff9ec4' },
+    { id: 'sister', ja: '姉', en: 'Sis', r: 3.7, k: 1.0, loud: [1.3, 2.2], quiet: [1.0, 1.9], snoreJa: 'スピー', snoreEn: 'zzz', col: '#c9a4ff' },
+    { id: 'dad', ja: '父', en: 'Dad', r: 5.0, k: 0.9, loud: [1.5, 2.4], quiet: [1.0, 1.9], snoreJa: 'グォォ', snoreEn: 'SNORK', col: '#7fd0ff' },
+    { id: 'dog', ja: '犬', en: 'Pup', r: 4.6, k: 1.25, loud: [1.2, 2.0], quiet: [0.9, 1.7], snoreJa: 'プスー', snoreEn: 'pfff', col: '#ffc46b' },
+    { id: 'mom', ja: '母', en: 'Mom', r: 4.4, k: 1.0, loud: [1.4, 2.2], quiet: [1.0, 1.8], snoreJa: 'ゴゴゴ', snoreEn: 'GRRR', col: '#ff9ec4' },
   ],
   // 冷蔵庫から取れるもの（取る順）
   ITEMS: [
@@ -17,7 +17,7 @@ window.MP_DATA = {
     { id: 'beer', ja: '父の缶ビール', en: "Dad's beer" },
     { id: 'cake', ja: 'ホールケーキ', en: 'A whole cake' },
   ],
-  DAWN: 90, // 秒。3:00 から 1秒=1分で 4:30 に朝
+  DAWN: 70, // 秒。3:00 から 1秒=1分で 4:10 に朝
   NUM_JA: ['初', '二', '三', '四', '五', '六', '七', '八', '九', '十'],
   // 成功時の副題（取れた数）
   SUB_OK: {
@@ -54,15 +54,15 @@ window.MP_DATA = {
       start: 'はじめる', how: 'あそびかた', back: 'もどる', go: 'やってみる',
       howTitle: 'あそびかた',
       how1pc: 'スペースキーかマウスを<b>押している間だけ</b>進む。離すと止まる。', how1sp: '画面を<b>押している間だけ</b>進む。指を離すと止まる。',
-      how2: '家族の<b>いびきが大きい間</b>だけ動け。静かな時に動くと「ん…？」とゲージがたまる。',
-      how3: '<b>きしむ板</b>と<b>おもちゃ</b>は音が出る。いびきにまぎれて踏め。',
-      how4: '冷蔵庫は押して開ける。押し続けると<b>どんどん取る</b>。離すと閉めて帰る。',
-      how5: '家族が<b>起き上がったら固まれ</b>。見られている間に動くと発覚。朝4:30までに自分の部屋へ。',
+      how2: '家族の<b>いびきが大きい間</b>だけ動け。静かな時に動くと「ん…？」とゲージがたまる。いびきは<b>急にピタッと止まる</b>ことがある。',
+      how3: '<b>きしむ板</b>と<b>おもちゃ</b>は音が出る。いびきにまぎれて踏め。<b>寝ぼけた父</b>が歩き回っている。ぶつかると抱きつかれる。',
+      how4: '冷蔵庫は押して開ける。押し続けると<b>どんどん取る</b>。離すと閉めて帰る。<b>明かりで母と犬が起きやすい</b>。',
+      how5: '家族が<b>起き上がったら即固まれ</b>。見られている間に動くと発覚。朝4:10までに自分の部屋へ。',
       tutPc: 'スペースキーか<br>マウスを<b>押している間</b>進む', tutSp: '画面を<b>押している間</b>進む',
       tut2: 'いびきが<b>大きい間</b>だけ動け', tutGo: 'タップで開始', tutGoPc: 'クリックで開始',
       holdPc: '押しっぱなしで進む', holdSp: '押しっぱなしで進む',
       sigGo: 'いまだ！', sigStop: 'しずかに…', sigFreeze: '固まれ！', sigFridge: '押して開けろ', sigGrab: '押して取る／離して帰る', sigFull: 'もう持てない！離せ！',
-      toDawn: '朝まで', creak: 'ギィッ', toy: 'ピコッ', hmm: 'ん…？', wake: '…だれ？', door: 'ギーーッ', close: 'パタン',
+      toDawn: '朝まで', creak: 'ギィッ', toy: 'ピコッ', hmm: 'ん…？', apnea: 'ピタッ…', wake: '…だれ？', door: 'ギーーッ', close: 'パタン',
       hug: 'むにゃ…まくら…', hugMe: 'はなして〜！', got: 'ゲット！',
       caughtMom: '何してるの', caughtDad: '…プリン？', caughtSis: 'それ私のやつ！', caughtDog: 'ワン！', caughtMe: 'ひぃぃ〜！',
       dawnMsg: 'ジリリリリ！朝だ！', yum: 'しあわせ〜', mogu: 'もぐもぐ',
@@ -78,15 +78,15 @@ window.MP_DATA = {
       start: 'START', how: 'HOW TO PLAY', back: 'BACK', go: 'PLAY',
       howTitle: 'How to play',
       how1pc: 'Hold Space or the mouse to walk. <b>Let go to stop.</b>', how1sp: 'Hold the screen to walk. <b>Let go to stop.</b>',
-      how2: 'Only move while the family is <b>snoring loud</b>. Moving in the quiet fills their "huh?" meter.',
-      how3: '<b>Creaky boards</b> and <b>toys</b> make noise. Step on them during a snore.',
-      how4: 'Hold to open the fridge. Keep holding to <b>grab more</b>. Let go to close it and head back.',
-      how5: 'If someone <b>sits up, freeze</b>. Move while they look and you are busted. Get back to bed by 4:30 AM.',
+      how2: 'Only move while the family is <b>snoring loud</b>. Moving in the quiet fills their "huh?" meter. Snores can <b>stop suddenly</b>.',
+      how3: '<b>Creaky boards</b> and <b>toys</b> make noise. Step on them during a snore. <b>Sleepwalking Dad</b> roams around and hugs you if you bump into him.',
+      how4: 'Hold to open the fridge. Keep holding to <b>grab more</b>. Let go to close it and head back. <b>The light wakes Mom and the dog</b>.',
+      how5: 'If someone <b>sits up, freeze at once</b>. Move while they look and you are busted. Get back to bed by 4:10 AM.',
       tutPc: 'Hold <b>Space or the mouse</b><br>to walk', tutSp: '<b>Hold the screen</b> to walk',
       tut2: 'Move only while they <b>snore loud</b>', tutGo: 'Tap to start', tutGoPc: 'Click to start',
       holdPc: 'Hold to sneak', holdSp: 'Hold to sneak',
       sigGo: 'GO!', sigStop: 'shhh...', sigFreeze: 'FREEZE!', sigFridge: 'Hold to open', sigGrab: 'Hold: grab / Let go: leave', sigFull: 'Hands full! Let go!',
-      toDawn: 'to dawn', creak: 'CREAK', toy: 'SQUEAK', hmm: 'hm...?', wake: '...who?', door: 'CREEEAK', close: 'click',
+      toDawn: 'to dawn', creak: 'CREAK', toy: 'SQUEAK', hmm: 'hm...?', apnea: '...stopped?', wake: '...who?', door: 'CREEEAK', close: 'click',
       hug: 'mmh... my pillow...', hugMe: 'let me go~!', got: 'GOT IT!',
       caughtMom: 'What are you doing?', caughtDad: '...pudding?', caughtSis: 'That is MINE!', caughtDog: 'WOOF!', caughtMe: 'EEEEK!',
       dawnMsg: 'RIIING! It is morning!', yum: 'pure bliss~', mogu: 'nom nom',

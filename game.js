@@ -10,7 +10,7 @@ function rng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>
 // ---------- 設定・状態
 const S = { lang: 'ja', pc: !matchMedia('(pointer:coarse)').matches, tut: false }
 const T = k => D.STR[S.lang][k] ?? k
-const TUNE = { speed: 2.8, rate: 110, decay: 10 }, MAXI = D.ITEMS.length
+const TUNE = { botRisk: 30, speed: 2.8, rate: 150, decay: 8, apnea: 0.45, grace: 0.25, light: 28, dadV: 1.5 }, MAXI = D.ITEMS.length
 
 // 道（押している間だけこの線の上を進む）
 const PATH = [[-12.3, -0.9], [-9.0, 0.3], [-5.0, 0.4], [-2.0, 0.6], [0.6, 1.9], [4.4, 1.9], [7.0, 0.5], [10.2, 0.0], [11.95, -1.55]]
@@ -32,7 +32,10 @@ const SPOTS = {
 // 音の出る物（道の上）
 const HAZ = [
   { id: 'board', x: -7.0, z: 0.35 },
+  { id: 'board', x: -3.6, z: 0.5 },
   { id: 'toy', x: -0.6, z: 1.3 },
+  { id: 'board', x: 3.2, z: 1.9 },
+  { id: 'toy', x: 5.6, z: 1.25 },
   { id: 'board', x: 8.9, z: 0.2 },
 ]
 for (const h of HAZ) h.s = sOf(h.x, h.z)
@@ -51,12 +54,21 @@ function newGame(seed) {
 // いびきの波（大きい区間のリスト）
 function snoreSegs(f, r) {
   const segs = []; let t = -r() * 2.5
-  while (t < 260) { const a = t, b = a + lerp(f.loud[0], f.loud[1], r()); segs.push([a, b]); t = b + lerp(f.quiet[0], f.quiet[1], r()) }
+  while (t < 260) {
+    const a = t, vb = a + lerp(f.loud[0], f.loud[1], r()), ap = r() < TUNE.apnea
+    const b = ap ? a + (vb - a) * lerp(0.35, 0.6, r()) : vb
+    segs.push([a, b, vb, ap]); t = b + lerp(f.quiet[0], f.quiet[1], r())
+  }
   return segs
 }
 function loudness(f, t) {
-  for (const [a, b] of f.segs) { if (t < a) return 0; if (t <= b) return clamp(Math.min((t - a) / 0.3, (b - t) / 0.3), 0, 1) }
+  for (const [a, b, , ap] of f.segs) { if (t < a) return 0; if (t <= b) return clamp(Math.min((t - a) / 0.3, (b - t) / (ap ? 0.04 : 0.3)), 0, 1) }
   return 0
+}
+// 画面の波に見えている大きさ（無呼吸はまだ起きていない分は見えない）
+function visibleLoud(f, t, now) {
+  for (const [a, b, vb] of f.segs) { if (t < a) return false; const e = b < now ? b : vb; if (t <= e) return Math.min(t - a, e - t) > 0.15 }
+  return false
 }
 const isLoud = (f, t) => loudness(f, t) > 0.5
 function famPos(f) { if (f.walk) return { x: f.walk.x, z: f.walk.z }; return { x: f.spot.x, z: f.spot.z } }
@@ -320,18 +332,20 @@ function famUpdate(f, dt, pp) {
   if (f.hmmT > 0) f.hmmT -= dt
   if (f.state === 'sleep') {
     if (loud && !f.wasLoud) { if (!G.sim && G.phase === 'play') Snd.snore(f.id, clamp(1 - d / 10, 0, 1) * (f.id === 'dad' ? 1.2 : 0.9), segLeft(f)) }
+    if (!loud && f.wasLoud && !G.sim && G.phase === 'play') { const sg = f.segs.find(q => q[1] <= G.t && G.t - q[1] < 0.1); if (sg && sg[3] && d < f.r + 2) { Snd.sfx('snort'); f.apT = 0.9 } }
+    if (f.apT > 0) f.apT -= dt
     f.wasLoud = loud
     if (W.god) f.g = 0
     else if (G.acting && d < f.r) f.g += (loud ? 3 : TUNE.rate * f.k * (1 - 0.45 * d / f.r)) * dt
     else f.g = Math.max(0, f.g - TUNE.decay * dt)
-    if (!W.god && G.door > 0.3 && (f.id === 'mom' || f.id === 'dog')) f.g += (loud ? 4 : 15) * G.door * dt
+    if (!W.god && G.door > 0.3 && (f.id === 'mom' || f.id === 'dog')) f.g += (loud ? 9 : TUNE.light) * G.door * dt
     if (f.g >= 50 && !f.turned) { f.turned = true; f.turnAnim = 1.2; f.hmmT = 1.3; G.turns++; if (!G.sim) { Snd.sfx('hmm', f.id === 'dad' ? 0.7 : f.id === 'sister' ? 1.4 : 1); } }
     if (f.g < 25) f.turned = false
     if (f.g >= 100) { f.state = 'look'; f.wakeN++; G.wakes++; f.lookT = 2.2 + 0.7 * (f.wakeN - 1); f.look0 = f.lookT; f.g = 100; if (!G.sim) { Snd.sfx('wake', f.id === 'dad' ? 0.7 : f.id === 'sister' ? 1.4 : 1); fx(fp.x, 1.6, fp.z, '!?', 'big red') } }
   } else if (f.state === 'look') {
     f.lookT -= dt
-    // 起き上がる途中（0.4秒）は見逃す。指を離す猶予
-    if (G.acting && d < f.r * 1.5 && f.look0 - f.lookT > 0.4) return caught(f.id)
+    // 起き上がる途中（TUNE.grace 秒）は見逃す。指を離す猶予
+    if (G.acting && d < f.r * 1.5 && f.look0 - f.lookT > TUNE.grace) return caught(f.id)
     if (f.lookT <= 0) { f.state = 'sleep'; f.g = 38; f.turned = true; f.wasLoud = true }
   } else if (f.state === 'walk') {
     const w = f.walk
@@ -364,6 +378,7 @@ function update(dt) {
   for (const p of zPool) if (p.life > 0) { p.life -= dt; p.y += dt * 0.55; p.x += p.vx * dt; const k = p.life / 1.6; p.s.position.set(p.x + Math.sin(p.life * 5) * 0.08, p.y, p.z); p.s.scale.setScalar((p.big ? 0.42 : 0.26) * (1.3 - k * 0.5)); p.s.material.opacity = Math.min(1, k * 2); if (p.life <= 0) p.s.visible = false }
 }
 function playUpdate(dt) {
+  if (W.bot) G.held = botWants(1)
   G.t += dt
   const pp = playerPos()
   G.acting = false; G.moving = false
@@ -371,7 +386,7 @@ function playUpdate(dt) {
   if (G.sub === 'walk' && G.hugT <= 0 && G.held) {
     const sp = TUNE.speed * (G.dir < 0 ? 1 - 0.06 * (G.items - 1) : 1)
     const prev = G.s; G.s = clamp(G.s + G.dir * sp * dt, 0, LEN); G.moving = G.acting = true
-    for (const h of HAZ) { if ((prev - h.s) * (G.s - h.s) <= 0 && prev !== h.s) { if (h.id === 'toy' && G.toyKicked) continue; if (h.id === 'toy') { G.toyKicked = true; h.kick = 1 } noiseAt(h, h.id); if (G.phase !== 'play') return } }
+    for (const h of HAZ) { if ((prev - h.s) * (G.s - h.s) <= 0 && prev !== h.s) { if (h.id === 'toy' && h.kicked) continue; if (h.id === 'toy') { h.kicked = true; if (!G.sim) h.kick = 1 } noiseAt(h, h.id); if (G.phase !== 'play') return } }
     if (!G.sim) { G.stepT += dt; if (G.stepT > 0.32) { G.stepT = 0; Snd.sfx('step', 0.8) } }
     if (G.dir > 0 && G.s >= LEN) { G.sub = 'fridge' }
     if (G.dir < 0 && G.s <= 0) return success()
@@ -382,13 +397,14 @@ function playUpdate(dt) {
       else if (G.items < MAXI) { G.grabT += dt; if (G.grabT >= 0.62) { G.grabT = 0; grab() } }
       else G.acting = false
     } else if (G.items >= 1) { G.sub = 'close' }
+    else if (G.door > 0) { G.door = Math.max(0, G.door - dt * 0.5); if (G.door < 1) G.lit = false } // 手を離すと扉は少しずつ閉まる
   } else if (G.sub === 'close') {
     G.door -= dt * 2.6
     if (G.door <= 0) { G.door = 0; G.dir = -1; G.sub = 'walk'; if (!G.sim) { Snd.sfx('close'); fx(FR.x, 1.8, FR.z + 0.6, T('close'), '') } }
   }
   // 父の夢遊（帰り道）
   const dad = G.fam.find(f => f.id === 'dad')
-  if (G.dir < 0 && dad.state === 'sleep' && !dad.walk && G.sub === 'walk') { dad.state = 'walk'; dad.walk = { x: DAD_WALK.x, z: DAD_WALK.z0, v: 1.1, wait: 0.6 }; dad.g = 0 }
+  if (dad.state === 'sleep' && !dad.walk) { dad.state = 'walk'; dad.walk = { x: DAD_WALK.x, z: DAD_WALK.z0 + G.r() * 3, v: TUNE.dadV * (G.r() < 0.5 ? 1 : -1), wait: 0 }; dad.g = 0 }
   for (const f of G.fam) { famUpdate(f, dt, pp); if (G.phase !== 'play') return }
   if (G.t >= D.DAWN) caught('dawn')
 }
@@ -418,7 +434,7 @@ function resetWorld() {
   for (const id of Object.keys(famMesh)) { poseSleep(id); famMesh[id].setFace('sleep'); famMesh[id].bubble.visible = true }
   for (const m of stack.children.slice()) stack.remove(m)
   shelfItems.forEach((m, i) => { m.scale.setScalar(0.9); m.position.set(i % 2 ? 0.25 : -0.25, [0.57, 0.57, 1.07, 1.07, 1.52, 1.52][i], -0.05); m.rotation.set(0, 0, 0); fridge.add(m) })
-  for (const h of HAZ) if (h.mesh) { h.mesh.position.set(h.home[0], 0, h.home[1]); h.mesh.rotation.set(0, 0, 0); h.kick = 0 }
+  for (const h of HAZ) { h.kicked = false; if (h.mesh) { h.mesh.position.set(h.home[0], 0, h.home[1]); h.mesh.rotation.set(0, 0, 0); h.kick = 0 } }
   for (const m of handItem.children.slice()) handItem.remove(m)
   roomLight.intensity = 0; hemi.intensity = 1.7; hemi.color.set(0x8a9ae0); scene.background.set('#070a1a'); fridgeLight.intensity = 0; beam.material.opacity = 0; doorPivot.rotation.y = 0
   for (const s of sparks) s.visible = false
@@ -611,7 +627,7 @@ function drawHUD() {
     const tw = (tg.el.offsetWidth || 80) / 2 + 4; tg.el.style.left = clamp(p.x, tw, innerWidth - tw) + 'px'; tg.el.style.top = clamp(p.y, 100, innerHeight - 20) + 'px'
     let txt, cls
     const nm = S.lang === 'ja' ? f.ja : f.en
-    if (f.state === 'look') { txt = T('wake'); cls = 'wake' } else if (f.state === 'walk') { txt = T('hug').split('…')[0] + '…'; cls = 'quiet' } else if (f.hmmT > 0) { txt = T('hmm'); cls = 'hmm' } else if ((f.L ?? 0) > 0.5) { txt = nm + ' ' + (S.lang === 'ja' ? f.snoreJa : f.snoreEn); cls = 'loud' } else { txt = nm + ' …'; cls = 'quiet' }
+    if (f.state === 'look') { txt = T('wake'); cls = 'wake' } else if (f.state === 'walk') { txt = T('hug').split('…')[0] + '…'; cls = 'quiet' } else if (f.hmmT > 0) { txt = T('hmm'); cls = 'hmm' } else if (f.apT > 0) { txt = nm + ' ' + T('apnea'); cls = 'quiet' } else if ((f.L ?? 0) > 0.5) { txt = nm + ' ' + (S.lang === 'ja' ? f.snoreJa : f.snoreEn); cls = 'loud' } else { txt = nm + ' …'; cls = 'quiet' }
     if (tg.last !== txt + cls) { tg.last = txt + cls; tg.bub.textContent = txt; tg.bub.className = 'bub ' + cls }
     tg.g.parentNode.style.display = f.state === 'walk' ? 'none' : ''
     tg.g.style.width = Math.min(100, f.g) + '%'; tg.g.style.background = f.g < 50 ? 'var(--go)' : f.g < 80 ? 'var(--pud)' : 'var(--ng)'
@@ -631,7 +647,7 @@ function drawHUD() {
     const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h)
     const span = 4.5, past = 0.6, px = past / span * w
     x.fillStyle = 'rgba(255,74,90,.28)'; x.fillRect(0, 0, w, h)
-    for (const [a, b] of f.segs) { const s0 = (a + 0.15 - G.t + past) / span * w, s1 = (b - 0.15 - G.t + past) / span * w; if (s1 < 0 || s0 > w) continue; x.fillStyle = '#5be38a'; x.fillRect(s0, 3, s1 - s0, h - 6) }
+    for (const [a, b, vb] of f.segs) { const e = b < G.t ? b : vb, s0 = (a + 0.15 - G.t + past) / span * w, s1 = (e - 0.15 - G.t + past) / span * w; if (s1 < 0 || s0 > w) continue; x.fillStyle = '#5be38a'; x.fillRect(s0, 3, s1 - s0, h - 6) }
     // 波線の飾り
     x.strokeStyle = 'rgba(22,18,42,.55)'; x.lineWidth = 1.5; x.beginPath()
     for (let i = 0; i <= w; i += 2) { const tt = G.t - past + i / w * span, a = loudness(f, tt); x.lineTo(i, h / 2 + Math.sin(tt * 18) * a * (h / 2 - 3)) } x.stroke()
@@ -838,10 +854,10 @@ function sim(seed, policy = 'bot', opt = {}) {
 function botWants(want) {
   const pp = playerPos()
   if (G.fam.some(f => f.state === 'look')) return false
-  if (G.sub === 'fridge') { if (G.door >= 1 && G.items >= want) return false; return G.fam.filter(f => f.id === 'mom' || f.id === 'dog').every(f => f.state !== 'sleep' || f.g < 70 && isLoud(f, G.t) && isLoud(f, G.t + 0.3)) }
+  if (G.sub === 'fridge') { if (G.door >= 1 && G.items >= want) return false; return G.fam.filter(f => f.id === 'mom' || f.id === 'dog').every(f => f.g < 80 && (isLoud(f, G.t) || f.g < TUNE.botRisk + 15)) }
   const dad = G.fam.find(f => f.id === 'dad')
   if (dad.walk) { const nx = posAt(G.s + G.dir * 0.9); if (Math.hypot(nx.x - dad.walk.x, nx.z - dad.walk.z) < 1.3) return false }
-  for (const f of G.fam) { if (f.state !== 'sleep') continue; const q = famPos(f), d = Math.hypot(q.x - pp.x, q.z - pp.z); if (d < f.r + 0.3 && !(isLoud(f, G.t) && isLoud(f, G.t + 0.25))) return false; if (f.g > 60 && d < f.r + 0.5) return false }
+  for (const f of G.fam) { if (f.state !== 'sleep') continue; const q = famPos(f), d = Math.hypot(q.x - pp.x, q.z - pp.z); if (d < f.r + 0.3 && !(isLoud(f, G.t) && visibleLoud(f, G.t + 0.25, G.t)) && f.g > TUNE.botRisk) return false; if (f.g > 60 && d < f.r + 0.5) return false }
   return true
 }
 window.mp = {

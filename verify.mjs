@@ -163,13 +163,13 @@ await t('冷蔵庫: 押すと扉が開いて明かり、押し続けると最大
   })
   expect(r.sub === 'fridge' && r.door === 1 && r.lit && r.i2 === 2 && r.imax === 6 && r.dir === -1 && r.after === 'walk' && r.doorAfter === 0 && r.back > 0.5, JSON.stringify(r)); return r
 })
-await t('冷蔵庫: 何も取らずに離しても帰らない（扉はそのまま）', async () => {
+await t('冷蔵庫: 何も取らずに離しても帰らない（扉は少しずつ閉まる）', async () => {
   const r = await p.evaluate(() => {
     mp.startGame(106); mp.skipTut(); mp.dbg.pause(true); mp.W.god = true
-    mp.dbg.set({ s: mp.LEN, sub: 'fridge', held: true }); mp.dbg.step(20); mp.dbg.set({ held: false }); mp.dbg.step(60)
-    const r = { sub: mp.G.sub, door: +mp.G.door.toFixed(2), items: mp.G.items }; mp.W.god = false; return r
+    mp.dbg.set({ s: mp.LEN, sub: 'fridge', held: true }); mp.dbg.step(40); const d0 = mp.G.door; mp.dbg.set({ held: false }); mp.dbg.step(30)
+    const r = { sub: mp.G.sub, d0: +d0.toFixed(2), door: +mp.G.door.toFixed(2), items: mp.G.items }; mp.W.god = false; return r
   })
-  expect(r.sub === 'fridge' && r.door > 0.2 && r.items === 0, JSON.stringify(r)); return r
+  expect(r.sub === 'fridge' && r.door < r.d0 && r.door > 0 && r.items === 0, JSON.stringify(r)); return r
 })
 await t('帰り道: 寝ぼけた父にぶつかると抱き枕にされて止まる', async () => {
   const r = await p.evaluate(() => {
@@ -183,13 +183,17 @@ await t('帰り道: 寝ぼけた父にぶつかると抱き枕にされて止ま
   })
   expect(r.state === 'walk' && r.hug > 2 && r.moved === 0, JSON.stringify(r)); return r
 })
-await t('朝4:30（90秒）になると時間切れで発覚', async () => {
-  const r = await p.evaluate(() => { mp.startGame(108); mp.skipTut(); mp.dbg.pause(true); mp.dbg.step(60 * 91); return { phase: mp.G.phase, by: mp.G.by, clock: document.querySelector('#clockT').textContent } })
+await t('朝4:10（70秒）になると時間切れで発覚', async () => {
+  const r = await p.evaluate(() => { mp.startGame(108); mp.skipTut(); mp.dbg.pause(true); mp.dbg.step(60 * 71); return { phase: mp.G.phase, by: mp.G.by, clock: document.querySelector('#clockT').textContent } })
   expect(r.phase === 'caught' && r.by === 'dawn', JSON.stringify(r)); return r
 })
-await t('通しで遊べる: お手本の動きで40回すべて成功・タイムの中央値は40〜55秒', async () => {
-  const r = await p.evaluate(() => { const ts = [], items = []; let ok = 0; for (let i = 1; i <= 40; i++) { const o = mp.sim(1000 + i, 'bot', { items: 1 + (i % 3) }); if (o.outcome === 'ok') { ok++; ts.push(o.t); items.push(o.items) } } ts.sort((a, b) => a - b); return { ok, med: ts[ts.length >> 1], min: ts[0], max: ts[ts.length - 1], items: [...new Set(items)].sort() } })
-  expect(r.ok === 40 && r.med >= 40 && r.med <= 55, JSON.stringify(r)); return r
+await t('むずかしさ: いびきに合わせて動く上手いボットで100回中5〜6割成功・成功タイムの中央値は65秒以内', async () => {
+  const r = await p.evaluate(() => { const ts = [], items = [], by = {}; let ok = 0; for (let i = 1; i <= 100; i++) { const o = mp.sim(5000 + i, 'bot', { items: 1 + (i % 3) }); if (o.outcome === 'ok') { ok++; ts.push(o.t); items.push(o.items) } else by[o.by] = (by[o.by] || 0) + 1 } ts.sort((a, b) => a - b); return { ok, med: ts[ts.length >> 1], min: ts[0], max: ts[ts.length - 1], items: [...new Set(items)].sort(), fails: by } })
+  expect(r.ok >= 50 && r.ok <= 65 && r.med <= 65, JSON.stringify(r)); return r
+})
+await t('無呼吸: いびきが急に止まる区間があり、画面の波には事前に出ない', async () => {
+  const r = await p.evaluate(() => { mp.startGame(130); mp.dbg.pause(true); const f = mp.dbg.fam('dad'); const ap = f.segs.filter(s => s[3]); const s0 = ap[0]; return { n: ap.length, total: f.segs.length, cut: s0 && +(s0[2] - s0[1]).toFixed(2), drop: s0 && +(mp.loudness(f, s0[1] - 0.06) - mp.loudness(f, s0[1] - 0.01)).toFixed(2) } })
+  expect(r.n > 5 && r.cut > 0.3 && r.drop > 0.5, JSON.stringify(r)); return r
 })
 await t('押しっぱなしで突っ込むと序盤で見つかる／何もしないと朝で発覚', async () => {
   const r = await p.evaluate(() => { const a = []; for (let i = 1; i <= 20; i++) a.push(mp.sim(2000 + i, 'always')); const n = mp.sim(3000, 'never'); return { allCaught: a.every(o => o.outcome === 'ng'), maxT: Math.max(...a.map(o => o.t)), by: [...new Set(a.map(o => o.by))], never: n.by } })
