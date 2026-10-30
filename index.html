@@ -46,6 +46,7 @@ button{font-family:inherit;font-weight:900;color:inherit;border:0;background:non
 .logo{text-align:center;font-family:var(--disp);line-height:1.02;filter:drop-shadow(0 6px 0 var(--ink))}
 .logo .l1{display:block;font-size:min(5.2vh,9vw,46px);color:var(--moon);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;letter-spacing:.1em}
 .logo .l2{display:block;font-size:min(10vh,16vw,96px);color:var(--pud);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;transform:rotate(-3deg)}
+html[lang=en] .logo{max-width:calc(100vw - 24px)}html[lang=en] .logo .l2{font-size:min(10vh,14vw,96px)}
 .logo .l2 svg{height:.8em;width:auto;vertical-align:-.06em;margin-right:.06em}
 .tag{font-size:clamp(14px,2.2vh,19px);text-align:center;max-width:min(92vw,520px);padding:.5em 1em;background:rgba(11,16,36,.75);border:2px solid rgba(219,232,255,.35);border-radius:14px}
 .tbtns{display:flex;flex-direction:column;gap:14px;align-items:center}
@@ -131,6 +132,9 @@ html[lang=en] .stamp{font-size:clamp(26px,5.2vh,46px)}
 .cm .who{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:13px;border:2px solid var(--ink)}
 .rbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .rbtns .btn{font-size:clamp(14px,2.2vh,19px);padding:.55em 1.1em}
+.btn.xpost{background:#000;color:#fff;display:inline-flex;align-items:center;gap:.4em;box-shadow:0 5px 0 #444a5c,0 9px 18px rgba(0,0,0,.4)}
+.btn.xpost:active{box-shadow:0 1px 0 #444a5c}
+.btn.xpost svg{width:1em;height:1em;fill:currentColor;flex:none}
 @media (orientation:landscape) and (max-height:560px){
   #vResult .card{width:min(96vw,820px);display:grid;grid-template-columns:1fr 1.15fr;align-items:center;column-gap:16px}
   #vResult .card>.cL,#vResult .card>.cR{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
@@ -219,7 +223,7 @@ html[lang=en] .stamp{font-size:clamp(26px,5.2vh,46px)}
     </div>
     <div class="cR">
       <div class="cmts" id="rCmts"></div>
-      <div class="rbtns"><button class="btn" id="bAgain" data-t="again"></button><button class="btn pink" id="bSave" data-t="save"></button><button class="btn sub" id="bTitle" data-t="toTitle"></button></div>
+      <div class="rbtns"><button class="btn" id="bAgain" data-t="again"></button><button class="btn pink" id="bSave" data-t="save"></button><button class="btn xpost" id="bX" type="button"><svg class="xlogo" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg><span data-t="xPost"></span></button><button class="btn sub" id="bTitle" data-t="toTitle"></button></div>
     </div>
   </div>
 </main>
@@ -246,8 +250,8 @@ html[lang=en] .stamp{font-size:clamp(26px,5.2vh,46px)}
   },6000);
 })();
 </script>
-<script src="data.js?v=2"></script>
-<script src="snd.js?v=2"></script>
-<script type="module" src="game.js?v=2"></script>
+<script src="data.js?v=3"></script>
+<script src="snd.js?v=3"></script>
+<script type="module" src="game.js?v=3"></script>
 </body>
 </html>

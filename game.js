@@ -767,6 +767,13 @@ async function makeCard() {
 }
 function fitText(x, s, cx, cy, maxW, size, fam, weight = '', align = 'center') { let sz = size; do { x.font = `${weight} ${sz}px ${fam}`; sz -= 2 } while (x.measureText(s).width > maxW && sz > 14); x.textAlign = align; x.fillText(s, cx, cy) }
 function roundRect(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath() }
+const PUBLIC_URL = 'https://tom3games.github.io/midnight-pudding/'
+function xPost() {
+  const R = G.result, ja = S.lang === 'ja'
+  const text = ja ? `${titleText(R)}「${subText(R)}」取れたもの${R.items}個 #深夜のプリン作戦` : `${titleText(R)} "${subText(R)}" Snacks: ${R.items} #MidnightPudding`
+  return { text, url: PUBLIC_URL, href: `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(PUBLIC_URL)}` }
+}
+function openX() { if (!G || !G.result) return; window.open(xPost().href, '_blank', 'noopener') }
 async function saveImage() {
   const blob = await makeCard(); if (!blob) return null
   const file = new File([blob], 'midnight-pudding.png', { type: 'image/png' })
@@ -823,6 +830,7 @@ function boot() {
   on('#bHowGo', () => { Snd.sfx('tap'); S.tut = true; startGame() })
   on('#bAgain', () => { Snd.sfx('tap'); startGame() })
   on('#bSave', () => saveImage())
+  on('#bX', () => { Snd.sfx('tap'); openX() })
   on('#bTitle', () => { Snd.sfx('tap'); toTitle() })
   on('#bHome', () => { Snd.sfx('tap'); toTitle() })
   on('#bLang', () => { S.lang = S.lang === 'ja' ? 'en' : 'ja'; try { localStorage.setItem('mp.lang', S.lang) } catch (e) {} applyLang() })
@@ -861,7 +869,7 @@ function botWants(want) {
   return true
 }
 window.mp = {
-  get G() { return G }, S, TUNE, D, W, LEN, HAZ, posAt, loudness, isLoud, startGame, toTitle, showResult, revealNow, calcResult, saveImage, makeCard, sim, Snd, applyLang, go, titleText,
+  get G() { return G }, S, TUNE, D, W, LEN, HAZ, posAt, loudness, isLoud, startGame, toTitle, showResult, revealNow, calcResult, saveImage, xPost, openX, makeCard, sim, Snd, applyLang, go, titleText,
   setHold: v => press(v), skipTut: () => { $('#tut').hidden = true; W.tutWait = false; S.tut = true },
   fps: () => W.frames,
   dbg: {
