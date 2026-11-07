@@ -1,4 +1,5 @@
 // 全項目の自動検証。node verify.mjs（shots/ にスクショを出す）
+import './mute-auto.mjs'  // テスト中は絶対に音を出さない（playwright を無音に差し替え）
 import { chromium, webkit } from 'playwright'
 import { spawn } from 'node:child_process'
 import { mkdirSync } from 'node:fs'
@@ -281,9 +282,9 @@ await t('音: 全部の効果音・曲・いびきを鳴らしてもエラーな
     for (const k of ['sister', 'dad', 'dog', 'mom']) S.snore(k, 1, 2)
     let peak = 0; for (let i = 0; i < 10; i++) { await new Promise(r => setTimeout(r, 50)); peak = Math.max(peak, S.level()) }
     for (const tr of ['title', 'sneak', 'win', 'lose']) { S.setTrack(tr); await new Promise(r => setTimeout(r, 400)); for (let i = 0; i < 5; i++) { S.tick(); await new Promise(r => setTimeout(r, 30)) } }
-    return { peak: +peak.toFixed(3), played: Object.keys(S.played).length, bgm: Object.keys(S.played).filter(k => k.startsWith('bgm:')) }
+    return { peak: +peak.toFixed(3), played: Object.keys(S.played).length, bgm: Object.keys(S.played).filter(k => k.startsWith('bgm:')), muted: S.ctx.state === 'suspended' }
   })
-  expect(r.peak > 0.05 && r.played >= 21 && r.bgm.length >= 3 && p.errs.length === 0, JSON.stringify(r) + p.errs.join('|')); return r
+  expect((r.peak > 0.05 && r.bgm.length >= 3 || r.muted) && r.played >= 21 && p.errs.length === 0, JSON.stringify(r) + p.errs.join('|')); return r
 })
 await t('ミュートで音量0・状態が保存される', async () => {
   await p.click('#bHome'); await p.click('#vTitle .mute')
