@@ -87,7 +87,7 @@ await t('OGP 一式がある（画像は公開URL・1200x630 の og.png）', asy
     const img = new Image(); img.src = 'og.png'; await img.decode().catch(() => {})
     return { has: ['og:title', 'og:description', 'og:image', 'og:url', 'og:type'].every(k => !!m(k)) && !!document.querySelector('meta[name="twitter:card"]'), image: m('og:image'), url: m('og:url'), w: img.naturalWidth, h: img.naturalHeight }
   })
-  expect(r.has && r.image === 'https://tom3games.github.io/midnight-pudding/og.png?v=1' && r.url === 'https://tom3games.github.io/midnight-pudding/' && r.w === 1200 && r.h === 630, JSON.stringify(r)); return r
+  expect(r.has && r.image === 'https://tom3games.com/play/midnight-pudding/og.png?v=1' && r.url === 'https://tom3games.com/play/midnight-pudding/' && r.w === 1200 && r.h === 630, JSON.stringify(r)); return r
 })
 await t('タイトル: 日本語で表示・ボタンが押せる', async () => {
   const r = await p.evaluate(() => ({ t: document.querySelector('.logo').textContent, s: document.querySelector('#bStart').textContent, vis: !document.querySelector('#vTitle').hidden }))
