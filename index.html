@@ -52,7 +52,7 @@ html[lang=en] .logo{max-width:calc(100vw - 24px)}html[lang=en] .logo .l2{font-si
 .logo .l2 svg{height:.8em;width:auto;vertical-align:-.06em;margin-right:.06em}
 .tag{font-size:clamp(14px,2.2vh,19px);text-align:center;max-width:min(92vw,520px);padding:.5em 1em;background:rgba(11,16,36,.75);border:2px solid rgba(219,232,255,.35);border-radius:14px}
 .tbtns{display:flex;flex-direction:column;gap:14px;align-items:center}
-.credit{position:absolute;bottom:max(8px,env(safe-area-inset-bottom));font-size:11px;opacity:.6}
+.credit{position:absolute;bottom:max(8px,calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)));font-size:11px;opacity:.6}
 .moonbadge{position:absolute;left:12px;top:max(12px,env(safe-area-inset-top));font-family:var(--disp);font-size:13px;color:var(--moon);opacity:.85;display:flex;gap:6px;align-items:center}
 .moonbadge svg{width:22px;height:22px}
 
@@ -99,7 +99,7 @@ html[lang=en] .logo{max-width:calc(100vw - 24px)}html[lang=en] .logo .l2{font-si
 .fx.red{color:var(--ng)}
 @keyframes fxup{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-120%) scale(1)}}
 @keyframes pop{0%{transform:scale(.3)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
-#hold{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 18px 8px 10px;border-radius:40px;background:rgba(11,16,36,.8);border:3px solid rgba(219,232,255,.5);font-family:var(--disp);font-size:clamp(14px,2.2vh,18px);color:var(--moon);z-index:4;pointer-events:none;white-space:nowrap}
+#hold{position:absolute;bottom:max(14px,calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 18px 8px 10px;border-radius:40px;background:rgba(11,16,36,.8);border:3px solid rgba(219,232,255,.5);font-family:var(--disp);font-size:clamp(14px,2.2vh,18px);color:var(--moon);z-index:4;pointer-events:none;white-space:nowrap}
 #hold svg{width:38px;height:38px}
 #hold.on{background:var(--pud);color:var(--ink);border-color:var(--ink);box-shadow:0 0 24px rgba(255,210,63,.6)}
 #flash{position:absolute;inset:0;background:#fff8d8;opacity:0;pointer-events:none;z-index:3}
@@ -110,7 +110,7 @@ html[lang=en] .logo{max-width:calc(100vw - 24px)}html[lang=en] .logo .l2{font-si
 #tut .tl b{color:var(--pink-dk);white-space:nowrap}
 #tut .go{font-family:var(--disp);font-size:clamp(16px,2.6vh,22px);color:var(--pink-dk);animation:blink 1s infinite}
 @keyframes blink{50%{opacity:.35}}
-#skipHint{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));right:12px;font-size:12px;opacity:.7;z-index:4}
+#skipHint{position:absolute;bottom:max(14px,calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)));right:12px;font-size:12px;opacity:.7;z-index:4}
 
 /* 結果 */
 #vResult{justify-content:center;background:rgba(11,16,36,.55);z-index:4}
@@ -142,6 +142,9 @@ html[lang=en] .stamp{font-size:clamp(26px,5.2vh,46px)}
   #vResult .card>.cL,#vResult .card>.cR{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
 }
 @media (max-height:700px) and (orientation:portrait){.cm:nth-child(n+4){display:none}}
+/* X のアプリの中: 下の帯（--inapp-bot）の分だけ家族のひとことを減らす */
+@media (max-height:780px) and (orientation:portrait){html.inapp-x .cm:nth-child(n+4){display:none}}
+@media (max-height:620px) and (orientation:portrait){html.inapp-x .cm:nth-child(n+3){display:none}html.inapp-x #vResult .card{gap:4px;padding-top:8px}}
 @media (max-height:420px){.cm:nth-child(n+4){display:none}.stamp{font-size:30px}}
 .cL,.cR{display:contents}
 .toast{position:fixed;left:50%;bottom:22%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:12px;z-index:20;font-size:14px}
@@ -255,6 +258,6 @@ html[lang=en] .stamp{font-size:clamp(26px,5.2vh,46px)}
 <script src="data.js?v=3"></script>
 <script src="snd.js?v=3"></script>
 <script type="module" src="game.js?v=3"></script>
-<script src="support.js?v=4" data-ja="プリン" data-en="pudding"></script>
+<script src="support.js?v=5" data-ja="プリン" data-en="pudding"></script>
 </body>
 </html>
